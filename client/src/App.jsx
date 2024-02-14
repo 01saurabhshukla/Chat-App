@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 
 const socket = io("http://localhost:5000");
@@ -9,12 +9,18 @@ const App = () => {
   const [chatActive, setChatActive] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     socket.on("received-message", (message) => {
       setMessages([...messages, message]);
+      scrollToBottom();
     });
-  }, [messages, socket]);
+  }, [messages,socket]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -59,8 +65,13 @@ const App = () => {
                     </div>
                   );
                 })}
+
+                <div ref={messagesEndRef} /> 
               </div>
-              <form className="flex justify-between gap-2 md:gap-4" onSubmit={handleSubmit}>
+              
+            </div>
+
+            <form className="flex justify-between gap-2 md:gap-4" onSubmit={handleSubmit}>
                 <input
                   type="text"
                   value={newMessage}
@@ -75,7 +86,7 @@ const App = () => {
                   Send
                 </button>
               </form>
-            </div>
+            
           </div>
         ) : (
           <div className="flex items-center justify-center w-screen h-screen gap-2">
