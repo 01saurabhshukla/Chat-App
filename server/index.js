@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const cors = require("cors");
+const path = require("path");
 const port = 5000;
 const { Server } = require("socket.io");
 
@@ -20,7 +21,6 @@ io.on("connection", (socket) => {
   console.log(`User connected : ${socket.id}`);
 
   socket.on("send-message", (message) => {
-    
     // Broadcast the message to all the connected users
     io.emit("received-message", message);
   });
@@ -28,6 +28,11 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("User Disconnected");
   });
+});
+
+app.get("/", (req, res) => {
+  app.use(express.static(path.resolve(__dirname, "client", "dist")));
+  res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
 });
 
 server.listen(port, () => {
